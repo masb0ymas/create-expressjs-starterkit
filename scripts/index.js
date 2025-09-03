@@ -10,39 +10,55 @@ const currentNodeVersion = process.versions.node
 const semver = currentNodeVersion.split('.')
 const major = parseInt(semver[0], 10)
 
+const minNodeVersion = 20
+const recomendationNodeVersion = 22
+
 const defaultProjectName = process.argv[2]
 const currentPath = process.cwd()
 const originGitRepo = 'https://github.com/masb0ymas'
 
+const selectRepositories = ['express-api', 'express-api-typeorm', 'express-api-sequelize']
+const selectPackageManagers = ['yarn', 'pnpm', 'npm']
+
 /**
- * Log formatted message
+ *
+ * @param {string} prefix
  * @param {string} message
  * @param {Function} colorFn
- * @returns {string}
  */
-function logMessage(message, colorFn = green) {
-  const prefix = blue('expressjs-cli:')
-  const coloredMessage = colorFn(message)
-  return `${prefix} ${coloredMessage}`
+function logger(prefix, message, colorFn = green) {
+  const prefixColor = blue(prefix)
+  console.log(`${prefixColor} ${colorFn(message)}`)
+}
+
+/**
+ *
+ * @param {string} prefix
+ * @param {string} message
+ */
+function errorLogger(prefix, message) {
+  const prefixColor = blue(prefix)
+  console.error(`${prefixColor} ${red(message)}`)
 }
 
 /**
  * Validate Node.js version
  */
 function validateNodeVersion() {
-  if (major < 18) {
-    console.error(
-      red(
-        `You are running Node ${currentNodeVersion}.\n` +
-          'Create Expressjs Starterkit requires Node 18 or higher.\n' +
-          'Please update your version of Node.'
-      )
-    )
+  const prefix = 'expressjs-cli'
+
+  if (major < minNodeVersion) {
+    const message =
+      `You are running Node ${currentNodeVersion}.\n` +
+      `Create Expressjs Starterkit requires Node ${minNodeVersion} or higher.\n` +
+      'Please update your version of Node.'
+    errorLogger(prefix, message)
     process.exit(1)
   }
 
-  if (major < 22) {
-    console.log(logMessage('Recommendation using node version 22', yellow))
+  if (major < recomendationNodeVersion) {
+    const message = `Recommendation using node version ${recomendationNodeVersion}`
+    logger(prefix, message, yellow)
   }
 }
 
@@ -50,10 +66,11 @@ function validateNodeVersion() {
  * Validate command line arguments
  */
 function validateArgs() {
+  const prefix = 'expressjs-cli'
   if (process.argv.length < 3) {
-    console.log('You have to provide a name to your app.')
-    console.log('For example:')
-    console.log(cyan('    npx create-expressjs-starterkit my-app'))
+    logger(prefix, 'You have to provide a name to your app.', blue)
+    logger(prefix, 'For example:', blue)
+    logger(prefix, '    npx create-expressjs-starterkit my-app', cyan)
     process.exit(1)
   }
 }
@@ -64,14 +81,17 @@ function validateArgs() {
  * @param {string} projectName
  */
 function createProjectDirectory(projectPath, projectName) {
+  const prefix = 'expressjs-cli'
+
   try {
     fs.mkdirSync(projectPath)
+    logger(prefix, `Successfully created directory ${projectName}`)
   } catch (err) {
     if (err.code === 'EEXIST') {
       const message = `The file ${projectName} already exists in the current directory, please give it another name.`
-      console.log(logMessage(message, red))
+      errorLogger(prefix, message)
     } else {
-      console.log(red(err))
+      errorLogger(prefix, err.message)
     }
     process.exit(1)
   }
@@ -82,17 +102,23 @@ function createProjectDirectory(projectPath, projectName) {
  * @param {string} packageManager
  */
 function installDependencies(packageManager) {
-  console.log(logMessage('Installing dependencies...'))
+  const prefix = 'expressjs-cli'
+  logger(prefix, 'Installing dependencies...')
 
-  switch (packageManager) {
-    case 'yarn':
-      execSync('yarn')
-      break
-    case 'pnpm':
-      execSync('pnpm install')
-      break
-    default:
-      execSync('npm install')
+  try {
+    switch (packageManager) {
+      case 'yarn':
+        execSync('yarn')
+        break
+      case 'pnpm':
+        execSync('pnpm install')
+        break
+      default:
+        execSync('npm install')
+    }
+  } catch (err) {
+    errorLogger(prefix, err.message)
+    process.exit(1)
   }
 }
 
@@ -103,22 +129,25 @@ function installDependencies(packageManager) {
  * @param {string} packageManager
  */
 function setupProject(templateChoice, projectPath, packageManager) {
+  const prefix = 'expressjs-cli'
+
   try {
     const repoURL = `${originGitRepo}/${templateChoice}`
 
-    console.log(logMessage('Cloning repository...'))
+    logger(prefix, 'Cloning repository...')
     execSync(`git clone --depth 1 ${repoURL} ${projectPath}`)
 
     process.chdir(projectPath)
 
     installDependencies(packageManager)
+    logger(prefix, 'Dependencies installed successfully')
 
-    console.log(logMessage('Removing useless files'))
+    logger(prefix, 'Removing useless files')
     execSync('npx rimraf ./.git')
 
-    console.log(logMessage('The installation is done, this is ready to use!'))
+    logger(prefix, 'The installation is done, this is ready to use!')
   } catch (err) {
-    console.log(red(err))
+    errorLogger(prefix, err.message)
     process.exit(1)
   }
 }
@@ -133,7 +162,7 @@ inquirer
       name: 'templateChoice',
       type: 'list',
       message: 'What project template would you like to generate?',
-      choices: ['express-api', 'express-api-typeorm', 'express-api-sequelize'],
+      choices: selectRepositories,
     },
     {
       name: 'projectName',
@@ -151,7 +180,7 @@ inquirer
       name: 'packageManager',
       type: 'list',
       message: 'Prefer to install dependencies with:',
-      choices: ['npm', 'yarn', 'pnpm'],
+      choices: selectPackageManagers,
     },
   ])
   .then((answers) => {
@@ -162,6 +191,7 @@ inquirer
     setupProject(templateChoice, projectPath, packageManager)
   })
   .catch((error) => {
-    console.error(red('An error occurred:'), error)
+    const prefix = 'expressjs-cli'
+    errorLogger(prefix, error.message)
     process.exit(1)
   })
