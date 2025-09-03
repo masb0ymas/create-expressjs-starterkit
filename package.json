@@ -1,6 +1,6 @@
 {
   "name": "create-expressjs-starterkit",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "expressjs, cli, pkg, and many more.",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,7 @@
   "homepage": "https://github.com/masb0ymas/create-expressjs-starterkit#readme",
   "type": "module",
   "bin": {
-    "create-expressjs-starterkit": "./scripts/index.js"
+    "create-expressjs-starterkit": "scripts/index.js"
   },
   "repository": {
     "type": "git",
