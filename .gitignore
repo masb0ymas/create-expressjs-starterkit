@@ -1,2 +1,6 @@
 /node_modules
 /my-app
+
+bun.lock*
+package-lock.json
+yarn.lock
