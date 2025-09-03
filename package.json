@@ -41,7 +41,7 @@
     "inquirer": "^9.3.7"
   },
   "devDependencies": {
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.2",
     "rimraf": "^5.0.10",
     "standard-version": "^9.5.0"
   }
