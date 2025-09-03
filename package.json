@@ -1,6 +1,6 @@
 {
   "name": "create-expressjs-starterkit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "expressjs, cli, pkg, and many more.",
   "main": "index.js",
   "scripts": {

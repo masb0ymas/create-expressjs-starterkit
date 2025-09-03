@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/masb0ymas/create-expressjs-starterkit/compare/v1.0.0...v1.0.1) (2025-09-03)
+
+
+### Bug Fixes
+
+* improve script js ([c991e62](https://github.com/masb0ymas/create-expressjs-starterkit/commit/c991e62a7e35723963b6055d769c7e14c468ba1d))
+
 ### [1.0.2](https://github.com/masb0ymas/create-expressjs-starterkit/compare/v1.0.0...v1.0.2) (2025-09-03)
 
 
